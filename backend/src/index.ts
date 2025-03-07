@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import { PORT } from "./config";
-
+import userRouter from "./routes/user";
 
 dotenv.config();
 
@@ -29,6 +29,8 @@ app.use(bodyParser.json());
 app.get("/", (req: Request, res: Response) => {
   res.json({});
 });
+
+app.use("/api/v1/user",userRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
