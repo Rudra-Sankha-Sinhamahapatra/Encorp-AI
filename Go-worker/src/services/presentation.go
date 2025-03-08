@@ -3,7 +3,9 @@ package services
 import (
 	"Go-worker/src/utils"
 	"context"
+	"encoding/json"
 	"log"
+	"strings"
 )
 
 type PresentationService struct {
@@ -39,7 +41,8 @@ func (s *PresentationService) GeneratePresentation(ctx context.Context, topic st
         }
       ]
     }
-    Include 5-7 slides with compelling content and detailed imagePrompt fields for each content slide.`
+    Include 5-7 slides with compelling content and detailed imagePrompt fields for each content slide. 
+    IMPORTANT: Return ONLY the JSON without any markdown code blocks or other text.`
 
 	fullPrompt := systemPrompt + "\nTopic: " + topic
 
@@ -47,6 +50,31 @@ func (s *PresentationService) GeneratePresentation(ctx context.Context, topic st
 	if err != nil {
 		return "", err
 	}
+
+	result = cleanJSONResponse(result)
+
 	log.Printf("Successfully generated the presentation for topic: %s", topic)
 	return result, nil
+}
+
+func cleanJSONResponse(response string) string {
+	// Removing markdown code block indicators
+	response = strings.TrimPrefix(response, "```json")
+	response = strings.TrimPrefix(response, "```")
+	response = strings.TrimSuffix(response, "```")
+
+	// Removing leading/trailing whitespace
+	response = strings.TrimSpace(response)
+
+	var js map[string]interface{}
+	if err := json.Unmarshal([]byte(response), &js); err != nil {
+		startIdx := strings.Index(response, "{")
+		endIdx := strings.LastIndex(response, "}")
+
+		if startIdx >= 0 && endIdx > startIdx {
+			response = response[startIdx : endIdx+1]
+		}
+	}
+
+	return response
 }
