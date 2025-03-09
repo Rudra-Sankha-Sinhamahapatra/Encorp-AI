@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/axios';
@@ -22,7 +23,8 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchPresentations = async () => {
       try {
-        const response = await api.get('/presentation/user');
+        const userId = Cookies.get('userId');
+        const response = await api.get(`/presentation/user/${userId}`);
         setPresentations(response.data.presentations || []);
       } catch (error) {
         console.error('Error fetching presentations:', error);
