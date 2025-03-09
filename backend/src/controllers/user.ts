@@ -106,6 +106,7 @@ export const signup = async(req:Request,res:Response):Promise<void>=>{
            res.status(200).json({
             message:"User Signed In Successfully",
             token,
+            userId:exisitingUser.id,
             exisitingUser
            })
            return

@@ -163,3 +163,49 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
       return
     }
   };
+
+  export const getUserPresentations = async (req:Request,res:Response) => {
+    try {
+      const userId = Number(req.params.userId);
+
+      console.log('User ID from token:', userId);
+      if (!userId) {
+        res.status(401).json({ message: 'User Id invalid' });
+        return
+      }
+
+      const user = await prisma.user.findUnique({
+        where:{
+          id:userId
+        }
+      });
+
+      if(!user) {
+        res.status(404).json({
+          message:"User not found"
+        });
+        return
+      }
+
+      const presentations = await prisma.presentationJob.findMany({
+        where:{
+          userId:userId
+        }
+      })
+
+      console.log("Presentations fetched:", presentations); 
+
+      res.status(200).json({
+        message:"Presentations fetched successfully for the user",
+        presentations,
+        userId
+      });
+    } catch (error) {
+      console.log("Internal Server Error ",error)
+      res.status(500).json({
+        message:"Internal Server Error",
+        userId:req.id
+      })
+      return
+    }
+  }
