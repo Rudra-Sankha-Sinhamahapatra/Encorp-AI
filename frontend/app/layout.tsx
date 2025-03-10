@@ -1,14 +1,12 @@
 import './globals.css';
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
+import { LayoutWrapper } from '@/components/LayoutWrapper';
+import { metadata } from '@/lib/metadata';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: 'Encorp - AI Presentation Generator',
-  description: 'Create stunning presentations powered by AI',
-};
+export { metadata };
 
 export default function RootLayout({
   children,
@@ -18,7 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
+        </Providers>
       </body>
     </html>
   );
