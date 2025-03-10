@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import api from '@/lib/axios';
+import Cookies from 'js-cookie';
+
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -32,6 +34,13 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   
+    useEffect(() => {
+      const token = Cookies.get('token');
+     if(token) {
+        router.push('/dashboard');
+     }
+    }, [router]);
+
   const form = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
