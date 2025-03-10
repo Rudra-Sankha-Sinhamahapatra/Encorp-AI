@@ -1,22 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { PresentationProps } from '@/types/types';
 import { Download } from 'lucide-react';
 import pptxgen from 'pptxgenjs';
 import { useCallback } from 'react';
 
-type Slide = {
-  type: string;
-  title: string;
-  subtitle?: string;
-  bullets?: string[];
-  imageURL?: string;
-};
-
-type PresentationProps = {
-  title: string;
-  slides: Slide[];
-};
 
 export function PPTXDownloadButton({ presentation }: { presentation: PresentationProps }) {
   const handleDownload = useCallback(() => {
