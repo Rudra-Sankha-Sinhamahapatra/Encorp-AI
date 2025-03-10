@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Presentation, Sparkles, Clock, Check, Users, Shield, Zap } from 'lucide-react';
+import { ArrowRight, Presentation, Sparkles, Clock, Check, Users, Shield, Zap, Star } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
@@ -36,9 +36,9 @@ export default function Home() {
               Get Started <ArrowRight className="ml-2" />
             </Button>
           </Link>
-          <Link href="/auth/login">
-            <Button variant="secondary" size="lg">
-              Sign In
+          <Link href="/create">
+            <Button variant="secondary" className='border border-violet-400' size="lg">
+              Create <Sparkles className='ml-2'/>
             </Button>
           </Link>
         </motion.div>

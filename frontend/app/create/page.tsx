@@ -70,13 +70,13 @@ export default function CreatePage() {
   };
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="container px-4 mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-card max-w-2xl mx-auto p-8"
-        >
+    <div className="py-12">
+    <div className="container px-4 mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-card max-w-2xl mx-auto p-8"
+      >
           <div className="flex items-center gap-3 mb-6">
             <Presentation className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold gradient-text">Create Presentation</h1>
