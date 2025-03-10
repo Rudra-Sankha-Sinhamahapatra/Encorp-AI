@@ -24,6 +24,7 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
     try {
       const response = await api.get(`/presentation/${id}`);
       setPresentation(response.data.presentation);
+      setStatus(response.data.status);
       setProgress(100);
       setLoading(false);
     } catch (error) {
@@ -180,7 +181,7 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className={`glass-card p-8 md:p-12 aspect-[16/9] flex flex-col justify-center ${index === currentSlide ? 'block' : 'hidden'}`}
+          className={`glass-card p-8 md:p-12 lg:aspect-[20/12] md:aspect-[20/13] xl:aspect-[20/10] 2xl:aspect-[20/8] flex flex-col justify-center ${index === currentSlide ? 'block' : 'hidden'}`}
           id={`slide-${index}`} 
         >
           {slide.type === 'title' ? (
