@@ -89,7 +89,8 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
             id: jobId,
           },
           data: {
-            status: statusValue as any 
+            status: statusValue as any,
+            updatedAt:new Date()
           }
         });
       }
@@ -124,35 +125,46 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
         return
       }
 
+      if (job.presentationData) {
+        res.status(200).json({
+          jobId,
+          status:job.status,
+          presentation: job.presentationData
+        });
+        return;
+      }
+  
       
       const presentation = await redisClient.get(`presentation:${jobId}`);
       if (!presentation) {
          res.status(404).json({
+          jobId,
+          status: job.status,
           message: "Presentation not found or still processing"
         });
         return
       }
 
+      const parsedPresentation = JSON.parse(presentation);
       const status = await redisClient.get(`job_status:${jobId}`);
       
       const statusValue = status ? status.toUpperCase() : "PENDING";
   
-      if (statusValue === "COMPLETED" || statusValue === "FAILED" || statusValue === "PENDING") {
-        if (job.status !== statusValue) {
-          await prisma.presentationJob.update({
-            where: {
-              id: jobId,
-            },
-            data: {
-              status: statusValue as any 
-            }
-          });
+      await prisma.presentationJob.update({
+        where: {
+          id: jobId,
+        },
+        data: {
+          status: statusValue as any,
+          presentationData: parsedPresentation,
+          updatedAt: new Date()
         }
-      } 
+      });
       
         res.status(200).json({
         jobId,
-        presentation: JSON.parse(presentation)
+        status: statusValue,
+        presentation: parsedPresentation
       });
       return
     } catch (error:any) {

@@ -29,6 +29,7 @@ model PresentationJob {
   status Status @default(PENDING)
   userId Int
   user User @relation(fields: [userId], references: [id])
+  presentationData Json? 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
