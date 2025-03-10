@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
+import { PPTXDownloadButton } from '@/components/ppt/PPTXDownloadButton';
 
 type Slide = {
   type: string;
@@ -185,10 +186,7 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
             Slide {currentSlide + 1} of {presentation.slides.length}
           </p>
         </div>
-        
-        <Button variant="outline" size="sm">
-          <Download className="h-4 w-4 mr-2" /> Export
-        </Button>
+        <PPTXDownloadButton presentation={presentation} />
       </div>
 
       <motion.div

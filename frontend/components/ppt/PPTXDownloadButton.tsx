@@ -21,7 +21,6 @@ type PresentationProps = {
 export function PPTXDownloadButton({ presentation }: { presentation: PresentationProps }) {
   const handleDownload = useCallback(() => {
     const pptx = new pptxgen();
-    
 
     pptx.layout = 'LAYOUT_16x9';
     pptx.author = 'Encorp AI';
@@ -30,13 +29,13 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
     const TITLE_COLOR = '0085FF';
     const TEXT_COLOR = '333333';
     const ACCENT_COLOR = '5D5FEF';
-    
+
     presentation.slides.forEach((slide) => {
       if (slide.type === 'title') {
         const titleSlide = pptx.addSlide();
-        
+
         titleSlide.background = { color: '000C24' };
-        
+
         titleSlide.addText(slide.title, {
           x: '5%',
           y: '40%',
@@ -47,7 +46,7 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
           align: 'center',
           fontFace: 'Arial',
         });
-        
+
         if (slide.subtitle) {
           titleSlide.addText(slide.subtitle, {
             x: '10%',
@@ -59,7 +58,7 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
             fontFace: 'Arial',
           });
         }
-        
+
         titleSlide.addShape(pptx.ShapeType.rect, {
           x: '0%',
           y: '90%',
@@ -72,9 +71,9 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
         });
       } else {
         const contentSlide = pptx.addSlide();
-        
+
         contentSlide.background = { color: 'FFFFFF' };
-        
+
         contentSlide.addText(slide.title, {
           x: '5%',
           y: '5%',
@@ -85,7 +84,7 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
           bold: true,
           fontFace: 'Arial',
         });
-        
+
         contentSlide.addShape(pptx.ShapeType.line, {
           x: '5%',
           y: '15%',
@@ -93,24 +92,26 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
           h: 0,
           line: { color: ACCENT_COLOR, width: 1 },
         });
-        
+
         if (slide.imageURL) {
           if (slide.bullets && slide.bullets.length > 0) {
             contentSlide.addText(
-              slide.bullets.join('\n• '),
+              slide.bullets.map((bullet) => `• ${bullet}`).join('\n'),
               {
                 x: '5%',
                 y: '20%',
                 w: '45%',
+                h: '60%',
                 fontSize: 16,
                 color: TEXT_COLOR,
                 bullet: false,
                 lineSpacing: 30,
+                valign: 'middle', 
                 fontFace: 'Arial',
               }
             );
           }
-          
+
           try {
             contentSlide.addImage({
               path: slide.imageURL,
@@ -120,7 +121,6 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
               h: '60%',
             });
           } catch (e) {
-            // If image loading fails (e.g., CORS issues), add a placeholder rectangle
             contentSlide.addShape(pptx.ShapeType.rect, {
               x: '55%',
               y: '20%',
@@ -129,7 +129,7 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
               fill: { color: 'F1F1F1' },
               line: { color: 'CCCCCC', width: 1 },
             });
-            
+
             contentSlide.addText('Image Placeholder', {
               x: '55%',
               y: '45%',
@@ -142,15 +142,17 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
         } else {
           if (slide.bullets && slide.bullets.length > 0) {
             contentSlide.addText(
-              slide.bullets.join('\n• '),
+              slide.bullets.map((bullet) => `• ${bullet}`).join('\n'),
               {
                 x: '5%',
                 y: '20%',
                 w: '90%',
+                h: '60%', 
                 fontSize: 18,
                 color: TEXT_COLOR,
                 bullet: false,
                 lineSpacing: 30,
+                valign: 'middle', 
                 fontFace: 'Arial',
               }
             );
@@ -158,10 +160,10 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
         }
       }
     });
-    
+
     pptx.writeFile({ fileName: `${presentation.title.replace(/[^\w\s]/gi, '')}.pptx` });
   }, [presentation]);
-  
+
   return (
     <Button variant="outline" size="sm" onClick={handleDownload}>
       <Download className="h-4 w-4 mr-2" /> Export to PowerPoint
