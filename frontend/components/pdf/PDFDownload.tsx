@@ -1,7 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { useCallback } from 'react';
 import { PresentationProps } from '@/types/types';
@@ -30,6 +28,7 @@ export function PDFDownloadButton({ presentation }: { presentation: Presentation
             // Bullet Points
             if (slide.bullets) {
                 doc.setFontSize(12); 
+                doc.setFont('helvetica', 'normal');
                 let yOffset = 60;
                 const maxWidth = doc.internal.pageSize.width - 40; 
 
@@ -45,8 +44,11 @@ export function PDFDownloadButton({ presentation }: { presentation: Presentation
     }, [presentation]);
 
     return (
-        <Button variant="outline" size="sm" onClick={handleDownload}>
-            <Download className="h-4 w-4 mr-2" /> Export to PDF
-        </Button>
+        <button
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            onClick={handleDownload}
+        >
+            Export as PDF
+        </button>
     );
 }
