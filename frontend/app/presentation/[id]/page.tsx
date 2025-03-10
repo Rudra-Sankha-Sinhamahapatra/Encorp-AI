@@ -3,26 +3,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Loader2, ArrowLeft, ArrowRight, Home, Download } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
-import { PPTXDownloadButton } from '@/components/ppt/PPTXDownloadButton';
-
-type Slide = {
-  type: string;
-  title: string;
-  subtitle?: string;
-  bullets?: string[];
-  imageURL?: string;
-  imagePrompt?: string;
-};
-
-type PresentationData = {
-  title: string;
-  slides: Slide[];
-};
+import { PresentationProps as PresentationData } from '@/types/types';
+import { ExportButton } from '@/components/ExportButton';
 
 export default function PresentationViewerPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -66,7 +53,6 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
     }
   }, [fetchPresentation, id]);
 
-
   useEffect(() => {
     checkPresentationStatus();
     
@@ -93,7 +79,6 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
       setCurrentSlide(currentSlide - 1);
     }
   };
-
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -167,8 +152,6 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
     );
   }
 
-  const currentSlideData = presentation.slides[currentSlide];
-
   return (
     <div className="container mx-auto p-4 py-8 max-w-6xl">
       <div className="flex justify-between items-center mb-6">
@@ -186,63 +169,56 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
             Slide {currentSlide + 1} of {presentation.slides.length}
           </p>
         </div>
-        <PPTXDownloadButton presentation={presentation} />
+        <div className='flex gap-2'>
+        <ExportButton presentation={presentation} />
+        </div>
       </div>
 
-      <motion.div
-        key={currentSlide}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="glass-card p-8 md:p-12 aspect-[16/9] flex flex-col justify-center"
-      >
-        {currentSlideData.type === 'title' ? (
-          <div className="text-center">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 gradient-text">
-              {currentSlideData.title}
-            </h2>
-            {currentSlideData.subtitle && (
-              <p className="text-xl md:text-2xl text-gray-300">{currentSlideData.subtitle}</p>
-            )}
-          </div>
-        ) : (
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-6">{currentSlideData.title}</h2>
-            <div className="flex flex-col md:flex-row gap-8">
-              <div className={`${currentSlideData.imageURL ? 'md:w-1/2' : 'w-full'}`}>
-                {currentSlideData.bullets && (
-                  <ul className="space-y-3 text-lg">
-                    {currentSlideData.bullets.map((bullet, index) => (
-                      <motion.li 
-                        key={index} 
-                        className="flex items-start"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                      >
-                        <span className="text-primary mr-2 text-xl">•</span>
-                        <span>{bullet}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              {currentSlideData.imageURL && (
-                <div className="md:w-1/2 flex justify-center items-center mt-6 md:mt-0">
-                  <motion.img 
-                    src={currentSlideData.imageURL} 
-                    alt={currentSlideData.title}
-                    className="rounded-lg max-h-[300px] object-contain"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                  />
-                </div>
+      {presentation.slides.map((slide, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className={`glass-card p-8 md:p-12 aspect-[16/9] flex flex-col justify-center ${index === currentSlide ? 'block' : 'hidden'}`}
+          id={`slide-${index}`} 
+        >
+          {slide.type === 'title' ? (
+            <div className="text-center">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 gradient-text">
+                {slide.title}
+              </h2>
+              {slide.subtitle && (
+                <p className="text-xl md:text-2xl text-gray-300">{slide.subtitle}</p>
               )}
             </div>
-          </div>
-        )}
-      </motion.div>
+          ) : (
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-6">{slide.title}</h2>
+              <div className="flex flex-col md:flex-row gap-8">
+                <div className="w-full">
+                  {slide.bullets && (
+                    <ul className="space-y-3 text-lg">
+                      {slide.bullets.map((bullet, bulletIndex) => (
+                        <motion.li 
+                          key={bulletIndex} 
+                          className="flex items-start"
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: bulletIndex * 0.1 }}
+                        >
+                          <span className="text-primary mr-2 text-xl">•</span>
+                          <span>{bullet}</span>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </motion.div>
+      ))}
 
       <div className="flex justify-between mt-6 gap-3">
         <Button

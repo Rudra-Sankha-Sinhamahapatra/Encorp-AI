@@ -1,11 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { PresentationProps } from '@/types/types';
-import { Download } from 'lucide-react';
 import pptxgen from 'pptxgenjs';
 import { useCallback } from 'react';
-
 
 export function PPTXDownloadButton({ presentation }: { presentation: PresentationProps }) {
   const handleDownload = useCallback(() => {
@@ -154,8 +151,11 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
   }, [presentation]);
 
   return (
-    <Button variant="outline" size="sm" onClick={handleDownload}>
-      <Download className="h-4 w-4 mr-2" /> Export to PowerPoint
-    </Button>
+    <button
+    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+    onClick={handleDownload}
+>
+    Export as PPT
+</button>
   );
 }
