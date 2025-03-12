@@ -24,6 +24,7 @@ func NewPresentationService(apiKey string) (*PresentationService, error) {
 }
 
 func (s *PresentationService) GeneratePresentation(ctx context.Context, topic string) (string, error) {
+
 	systemPrompt := `Create a presentation on this topic with the following JSON structure:
     {
       "title": "Presentation Title",
@@ -42,7 +43,11 @@ func (s *PresentationService) GeneratePresentation(ctx context.Context, topic st
       ]
     }
     Include 5-7 slides with compelling content and detailed imagePrompt fields for each content slide. 
-    IMPORTANT: Return ONLY the JSON without any markdown code blocks or other text.`
+    IMPORTANT: Return ONLY the JSON without any markdown code blocks or other text.
+	
+	    IMPORTANT: If the topic is inappropriate, harmful, illegal, or contains explicit content, respond with a JSON 
+    that has the title "Request Rejected" and a single slide explaining that the content violates the content policy.
+	`
 
 	fullPrompt := systemPrompt + "\nTopic: " + topic
 
