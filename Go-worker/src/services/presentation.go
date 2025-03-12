@@ -45,7 +45,7 @@ func (s *PresentationService) GeneratePresentation(ctx context.Context, topic st
     Include 5-7 slides with compelling content and detailed imagePrompt fields for each content slide. 
     IMPORTANT: Return ONLY the JSON without any markdown code blocks or other text.
 	
-	    IMPORTANT: If the topic is inappropriate, harmful, illegal, or contains explicit content, respond with a JSON 
+	    IMPORTANT: If the topic is inappropriate, harmful, illegal, 18+ illegal content or contains explicit content, respond with a JSON 
     that has the title "Request Rejected" and a single slide explaining that the content violates the content policy.
 	`
 
