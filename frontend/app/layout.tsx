@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { Providers } from './providers';
 import { LayoutWrapper } from '@/components/LayoutWrapper';
 import { metadata } from '@/lib/metadata';
+import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
             {children}
           </LayoutWrapper>
         </Providers>
+        <Analytics mode="production"/>
       </body>
     </html>
   );
