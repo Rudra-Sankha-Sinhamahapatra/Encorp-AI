@@ -61,9 +61,21 @@ Encorp AI is an AI-powered slide generator that takes user input prompts and gen
    ```sh
    cd frontend && npm run dev
    ```
-6. Start the Golang worker service:
+6. Run the Golang worker service:
+   
+   Development mode:
    ```sh
-   cd Go-worker && go run main.go
+   cd Go-worker && go run ./src/main.go
+   ```
+   
+   OR
+   
+   Build and run:
+   ```sh
+   cd Go-worker
+   go mod tidy
+   go build -o worker ./src/main.go
+   ./worker
    ```
 
 ## Contributing
