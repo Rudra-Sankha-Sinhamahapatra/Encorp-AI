@@ -4,6 +4,7 @@ import (
 	"Go-worker/src/services"
 	"Go-worker/src/utils"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"log"
 	"os"
@@ -28,7 +29,10 @@ func main() {
 	}
 
 	redisClient := redis.NewClient(&redis.Options{
-		Addr: utils.AppConfig.REDIS_URL,
+		Addr:      utils.AppConfig.REDIS_ADDR,
+		Username:  "default",
+		Password:  utils.AppConfig.REDIS_PASSWORD,
+		TLSConfig: &tls.Config{},
 	})
 	defer redisClient.Close()
 
