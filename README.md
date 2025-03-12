@@ -37,6 +37,11 @@ Encorp AI is an AI-powered slide generator that takes user input prompts and gen
 - **Storage (Upcoming Feature)**: S3/Cloudinary
 - **Exports**: jsPDF, pptgenx
 
+## Deployment
+- **Frontend**: Vercel
+- **Node.js Backend**: Vercel
+- **Golang Worker**: AWS EC2 
+
 ## Setup & Installation
 1. Clone the repository:
    ```sh
