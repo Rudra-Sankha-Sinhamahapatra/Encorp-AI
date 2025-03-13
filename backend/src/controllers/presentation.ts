@@ -110,6 +110,39 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
     }
   };
 
+  export const getExistingPresentationStatus = async (req: Request, res: Response) => {
+    try {
+      const { jobId } = req.params;
+      
+      const job = await prisma.presentationJob.findUnique({
+        where: {
+          id: jobId,
+        }
+      });
+
+      if (!job) {
+        res.status(404).json({
+          message: "Presentation job not found"
+        });
+        return
+      }
+
+      const status = job.status;
+      
+      res.status(200).json({
+        jobId,
+        status: status || "PENDING"
+      });
+      return
+    } catch (error:any) {
+       res.status(500).json({
+        message: "Failed to get presentation status",
+        error:error.message
+      });
+      return
+    }
+  };
+
   export const getPresentation = async (req: Request, res: Response) => {
     try {
       const { jobId } = req.params;
