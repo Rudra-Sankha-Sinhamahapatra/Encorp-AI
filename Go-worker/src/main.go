@@ -18,8 +18,10 @@ import (
 const GeneratePPTTask = "generate_ppt"
 
 type TaskPayload struct {
-	JobID  string `json:"job_id"`
-	Prompt string `json:"prompt"`
+	JobID             string `json:"job_id"`
+	Prompt            string `json:"prompt"`
+	NumberOfSlides    int    `json:"numberOfSlides"`
+	PresentationStyle string `json:"presentationStyle"`
 }
 
 func main() {
@@ -112,7 +114,7 @@ func processJobs(ctx context.Context, redisClient *redis.Client) {
 			}
 
 			log.Printf("Processing job %s with prompt: %s", payload.JobID, payload.Prompt)
-			result, err := presentationService.GeneratePresentation(taskCtx, payload.Prompt)
+			result, err := presentationService.GeneratePresentation(taskCtx, payload.Prompt, payload.NumberOfSlides, payload.PresentationStyle)
 			if err != nil {
 				log.Printf("Error generating presentation: %v", err)
 				redisClient.Set(taskCtx, "job_status:"+payload.JobID, "failed", 24*time.Hour)
