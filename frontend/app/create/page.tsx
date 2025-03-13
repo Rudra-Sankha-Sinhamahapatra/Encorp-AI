@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
+import Cookies from 'js-cookie';
 import { Loader2, Presentation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,8 +31,8 @@ import api from '@/lib/axios';
 
 const presentationSchema = z.object({
   prompt: z.string().min(10, 'Prompt must be at least 10 characters'),
-  style: z.string(),
-  slides: z.string(),
+  presentationStyle: z.string(),
+  numberOfSlides: z.string(),
 });
 
 type PresentationForm = z.infer<typeof presentationSchema>;
@@ -45,8 +46,8 @@ export default function CreatePage() {
     resolver: zodResolver(presentationSchema),
     defaultValues: {
       prompt: '',
-      style: 'modern',
-      slides: '10',
+      presentationStyle: 'modern',
+      numberOfSlides: '10',
     },
   });
 
@@ -55,7 +56,16 @@ export default function CreatePage() {
       setIsGenerating(true);
       setProgress(0);
       
-      const response = await api.post('/presentation', data);
+       const userId = Cookies.get('userId');
+
+       const payload = {
+        prompt: data.prompt,
+        presentationStyle: data.presentationStyle,
+        numberOfSlides: parseInt(data.numberOfSlides),
+        userId: userId || 1,
+      };
+
+      const response = await api.post('/presentation', payload);
       const { jobId } = response.data;
       
       toast.success('Presentation generation started!');
@@ -108,7 +118,7 @@ export default function CreatePage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="style"
+                  name="presentationStyle"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Presentation Style</FormLabel>
@@ -132,7 +142,7 @@ export default function CreatePage() {
 
                 <FormField
                   control={form.control}
-                  name="slides"
+                  name="numberOfSlides"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Number of Slides</FormLabel>
