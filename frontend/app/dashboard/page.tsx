@@ -68,7 +68,6 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      {/* This section is scrollable while the footer stays fixed */}
       <div className="flex-grow overflow-auto flex flex-col">
         <div className="border-b border-white/10 mb-4 pb-2">
           <p className="text-sm text-gray-400">
@@ -82,7 +81,7 @@ export default function DashboardPage() {
           </div>
         ) : presentations.length > 0 ? (
           <div className="overflow-y-auto pr-1 custom-scrollbar flex-grow">
-            <div className="grid gap-4 pb-48 md:pb-32 lg:pb-24"> {/* Added significant bottom padding */}
+            <div className="grid gap-4 pb-48 md:pb-32 lg:pb-24"> 
               {presentations.map((presentation) => (
                 <motion.div
                   key={presentation.id}
@@ -90,7 +89,7 @@ export default function DashboardPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                   className="glass-card p-5"
-                  onClick={() => router.push(`/presentation/${presentation.id}`)}
+                  onClick={() => router.push(`/ppt/${presentation.id}`)}
                   whileHover={{ scale: 1.01 }}
                   style={{ cursor: 'pointer' }}
                 >
