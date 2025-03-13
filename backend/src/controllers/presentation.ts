@@ -25,7 +25,7 @@ export const createPresentation = async (req:Request,res:Response) => {
         return
       };
 
-      const {prompt,userId} = result.data;
+      const {prompt,numberOfSlides,presentationStyle,userId} = result.data;
       const jobId = uuidv4();
 
       const job = await prisma.presentationJob.create({
@@ -39,7 +39,9 @@ export const createPresentation = async (req:Request,res:Response) => {
 
       await redisClient.lPush("presentation_Task_queue", JSON.stringify({
         job_id: jobId,
-        prompt: prompt
+        prompt: prompt,
+        numberOfSlides,
+        presentationStyle
       }));
 
       res.status(200).json({
