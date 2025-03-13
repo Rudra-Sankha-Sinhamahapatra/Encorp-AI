@@ -37,12 +37,25 @@ export const createPresentation = async (req:Request,res:Response) => {
         }
       });
 
-      await redisClient.lPush("presentation_Task_queue", JSON.stringify({
-        job_id: jobId,
-        prompt: prompt,
-        numberOfSlides,
-        presentationStyle
-      }));
+       try {
+        await redisClient.lPush("presentation_Task_queue", JSON.stringify({
+          job_id: jobId,
+          prompt: prompt,
+          numberOfSlides: numberOfSlides,
+          presentationStyle: presentationStyle
+        }));
+        
+        await redisClient.publish("presentation_job_notifications", `new_job:${jobId}`);
+        
+        console.log(`Successfully queued job ${jobId} for processing and sent notification`);
+      } catch (redisError) {
+        console.error("Redis operation failed:", redisError);
+        res.status(500).json({
+          message: "Failed to queue presentation job",
+          error: "Redis connection error"
+        });
+        return;
+      }
 
       res.status(200).json({
         message:"Presentation Generated Successfully",
