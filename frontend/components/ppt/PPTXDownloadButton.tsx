@@ -15,6 +15,7 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
     const TITLE_COLOR = '0085FF';
     const TEXT_COLOR = '333333';
     const ACCENT_COLOR = '5D5FEF';
+    const DESC_COLOR = '555555';
 
     presentation.slides.forEach((slide) => {
       if (slide.type === 'title') {
@@ -87,15 +88,29 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
                 x: '5%',
                 y: '20%',
                 w: '45%',
-                h: '60%',
+                h: '35%',
                 fontSize: 16,
                 color: TEXT_COLOR,
                 bullet: false,
                 lineSpacing: 30,
-                valign: 'middle', 
+                valign: 'top', 
                 fontFace: 'Arial',
               }
             );
+          }
+
+          if(slide.description) {
+            contentSlide.addText(slide.description, {
+              x:'5%',
+              y:slide.bullets && slide.bullets.length > 0 ?'58%':'20%',
+              w:'45%',
+              h:'25%',
+              fontSize: 14,
+              color: DESC_COLOR,
+              italic: true,
+              fontFace: 'Arial',
+              valign: 'top',
+            })
           }
 
           try {
@@ -133,15 +148,37 @@ export function PPTXDownloadButton({ presentation }: { presentation: Presentatio
                 x: '5%',
                 y: '20%',
                 w: '90%',
-                h: '60%', 
+                h: '35%', 
                 fontSize: 18,
                 color: TEXT_COLOR,
                 bullet: false,
                 lineSpacing: 30,
-                valign: 'middle', 
+                valign: 'top', 
                 fontFace: 'Arial',
               }
             );
+          }
+
+          if(slide.description) {
+            contentSlide.addShape(pptx.ShapeType.line, {
+              x: '5%',
+              y: slide.bullets && slide.bullets.length > 0 ? '57%' : '20%',
+              w: '90%',
+              h: 0,
+              line: { color: 'DDDDDD', width: 0.75 },  
+            });
+
+            contentSlide.addText(slide.description, {
+              x: '5%',
+              y: slide.bullets && slide.bullets.length > 0 ? '60%' : '25%',
+              w: '90%',
+              h: '25%',
+              fontSize: 16,
+              color: DESC_COLOR,
+              italic: true,
+              fontFace: 'Arial',
+              valign: 'top',
+            })
           }
         }
       }

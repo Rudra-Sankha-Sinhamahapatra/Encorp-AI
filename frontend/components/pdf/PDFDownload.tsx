@@ -25,18 +25,35 @@ export function PDFDownloadButton({ presentation }: { presentation: Presentation
                 doc.text(slide.subtitle, subtitleX, 45);
             }
 
+            let yOffset = 60;
+            const maxWidth = doc.internal.pageSize.width - 40;
+
             // Bullet Points
             if (slide.bullets) {
                 doc.setFontSize(12); 
                 doc.setFont('helvetica', 'normal');
-                let yOffset = 60;
-                const maxWidth = doc.internal.pageSize.width - 40; 
 
                 slide.bullets.forEach((bullet) => {
                     const wrappedText = doc.splitTextToSize(`• ${bullet}`, maxWidth);
                     doc.text(wrappedText, 20, yOffset); 
                     yOffset += wrappedText.length * 7; 
                 });
+
+                //space between title and description
+                yOffset += 5
+            }
+
+            if(slide.description) {
+                doc.setFontSize(11)
+                doc.setFont('helvetica','italic')
+
+                if(slide.bullets && slide.bullets.length > 0) {
+                    doc.setDrawColor(200,200,200)
+                    doc.line(20,yOffset -2 ,doc.internal.pageSize.width - 20,yOffset -2);
+                }
+
+                const wrappedDescription = doc.splitTextToSize(slide.description, maxWidth);
+                doc.text(wrappedDescription, 20, yOffset);
             }
         });
 

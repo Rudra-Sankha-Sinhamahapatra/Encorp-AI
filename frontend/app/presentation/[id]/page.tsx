@@ -214,6 +214,17 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
                       ))}
                     </ul>
                   )}
+
+                  {slide.description && (
+                    <motion.div
+                    initial={{opacity:0,y:10}}
+                    animate={{opacity:1,y:0}}
+                    transition={{duration:0.4,delay:0.3}}
+                    className='text-gray-300 mt-4 border-t border-white/10 pt-4'
+                    >
+                     <p className='text-base leading-relaxed'>{slide.description}</p>
+                    </motion.div>
+                  )}
                 </div>
               </div>
             </div>
