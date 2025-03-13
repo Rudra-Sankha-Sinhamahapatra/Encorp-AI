@@ -58,30 +58,60 @@ func main() {
 }
 
 func processJobs(ctx context.Context, redisClient *redis.Client) {
+	pubsub := redisClient.Subscribe(ctx, "presentation_job_notifications")
+	defer pubsub.Close()
+
+	ch := pubsub.Channel()
+
+	checkForExistingJobs(ctx, redisClient)
+
+	log.Println("Worker ready to process tasks - waiting for notifications...")
+
 	for {
 		select {
 		case <-ctx.Done():
+
 			return
-		default:
 
+		case msg := <-ch:
+			log.Printf("Received notification: %s, checking queue...", msg.Payload)
+			processQueuedTasks(ctx, redisClient)
+
+		case <-time.After(5 * time.Minute):
+			log.Println("Performing periodic queue check...")
+			processQueuedTasks(ctx, redisClient)
 		}
+	}
+}
 
-		log.Println("Checking for tasks...")
+func checkForExistingJobs(ctx context.Context, redisClient *redis.Client) {
+	log.Println("Checking for existing tasks in the queue...")
 
-		result, err := redisClient.BRPop(ctx, 5*time.Second, "presentation_Task_queue").Result()
+	queueLength, err := redisClient.LLen(ctx, "presentation_Task_queue").Result()
+	if err != nil {
+		log.Printf("Error checking queue length: %v", err)
+		return
+	}
+
+	if queueLength > 0 {
+		log.Printf("Found %d existing tasks in the queue", queueLength)
+		processQueuedTasks(ctx, redisClient)
+	} else {
+		log.Println("No existing tasks found")
+	}
+}
+
+func processQueuedTasks(ctx context.Context, redisClient *redis.Client) {
+
+	for {
+		result, err := redisClient.BRPop(ctx, 1*time.Second, "presentation_Task_queue").Result()
 		if err != nil {
 			if err == redis.Nil || err.Error() == "redis: nil" {
-				continue
-			}
 
-			select {
-			case <-ctx.Done():
 				return
-			default:
-				log.Printf("Error polling Redis: %v", err)
-				time.Sleep(2 * time.Second)
-				continue
 			}
+			log.Printf("Error polling Redis: %v", err)
+			return
 		}
 
 		if len(result) < 2 {
@@ -92,47 +122,55 @@ func processJobs(ctx context.Context, redisClient *redis.Client) {
 		taskStr := result[1]
 		log.Printf("Task received with payload: %s", taskStr)
 
-		go func(taskData string) {
-			var payload TaskPayload
-			if err := json.Unmarshal([]byte(taskData), &payload); err != nil {
-				log.Printf("Error parsing payload: %v", err)
-				return
-			}
+		go processTask(ctx, redisClient, taskStr)
+	}
+}
 
-			taskCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
-			defer cancel()
+func processTask(ctx context.Context, redisClient *redis.Client, taskData string) {
+	var payload TaskPayload
+	if err := json.Unmarshal([]byte(taskData), &payload); err != nil {
+		log.Printf("Error parsing payload: %v", err)
+		return
+	}
 
-			presentationService, err := services.NewPresentationService(utils.AppConfig.GEMINI_API_KEY)
-			if err != nil {
-				log.Printf("Failed to create presentation service: %v", err)
-				return
-			}
+	taskCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
+	defer cancel()
 
-			err = redisClient.Set(taskCtx, "job_status:"+payload.JobID, "processing", 24*time.Hour).Err()
-			if err != nil {
-				log.Printf("Error updating job status: %v", err)
-			}
+	presentationService, err := services.NewPresentationService(utils.AppConfig.GEMINI_API_KEY)
+	if err != nil {
+		log.Printf("Failed to create presentation service: %v", err)
+		updateJobStatus(taskCtx, redisClient, payload.JobID, "failed")
+		return
+	}
 
-			log.Printf("Processing job %s with prompt: %s", payload.JobID, payload.Prompt)
-			result, err := presentationService.GeneratePresentation(taskCtx, payload.Prompt, payload.NumberOfSlides, payload.PresentationStyle)
-			if err != nil {
-				log.Printf("Error generating presentation: %v", err)
-				redisClient.Set(taskCtx, "job_status:"+payload.JobID, "failed", 24*time.Hour)
-				return
-			}
+	updateJobStatus(taskCtx, redisClient, payload.JobID, "processing")
 
-			err = redisClient.Set(taskCtx, "presentation:"+payload.JobID, result, 24*time.Hour).Err()
-			if err != nil {
-				log.Printf("Error storing presentation: %v", err)
-				return
-			}
+	log.Printf("Processing job %s with prompt: %s, slides: %d, style: %s",
+		payload.JobID, payload.Prompt, payload.NumberOfSlides, payload.PresentationStyle)
 
-			err = redisClient.Set(taskCtx, "job_status:"+payload.JobID, "completed", 24*time.Hour).Err()
-			if err != nil {
-				log.Printf("Error updating job status: %v", err)
-			}
+	result, err := presentationService.GeneratePresentation(taskCtx, payload.Prompt, payload.NumberOfSlides, payload.PresentationStyle)
+	if err != nil {
+		log.Printf("Error generating presentation: %v", err)
+		updateJobStatus(taskCtx, redisClient, payload.JobID, "failed")
+		return
+	}
 
-			log.Printf("Successfully processed job %s", payload.JobID)
-		}(taskStr)
+	err = redisClient.Set(taskCtx, "presentation:"+payload.JobID, result, 24*time.Hour).Err()
+	if err != nil {
+		log.Printf("Error storing presentation: %v", err)
+		updateJobStatus(taskCtx, redisClient, payload.JobID, "failed")
+		return
+	}
+
+	updateJobStatus(taskCtx, redisClient, payload.JobID, "completed")
+	log.Printf("Successfully processed job %s", payload.JobID)
+}
+
+func updateJobStatus(ctx context.Context, redisClient *redis.Client, jobID string, status string) {
+	err := redisClient.Set(ctx, "job_status:"+jobID, status, 24*time.Hour).Err()
+	if err != nil {
+		log.Printf("Error updating job status for %s to %s: %v", jobID, status, err)
+	} else {
+		log.Printf("Updated job %s status to %s", jobID, status)
 	}
 }
