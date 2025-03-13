@@ -15,12 +15,13 @@ Encorp AI is an AI-powered slide generator that takes user input prompts and gen
 
 ### Workflow
 1. **User Input & Authentication**: Users input prompts through the Next.js frontend. Authentication is handled via the Node.js backend with an Auth DB.
-2. **Task Queueing**: The `/generate-ppt` route in the backend pushes the prompt to a Redis queue.
-3. **Golang Worker Service**: Polls Redis every second to check for pending tasks.
-4. **Gemini AI Processing**: Once a task is found, the Golang worker calls the Gemini API, processes the response, and pushes the structured JSON output back to Redis.
-5. **Polling Mechanism**: The frontend continuously polls the backend API (every 3 seconds) until the job reaches 100% completion.
-6. **Slide Preview**: The JSON response is used to render a preview of the slides.
-7. **Export Options**: Users can export slides as:
+2. **Task Queueing & Notification**: The backend pushes the prompt to a Redis queue and publishes a notification to the Redis Pub/Sub channel.
+3. **Event-Driven Processing**: The Golang worker receives instant notification when new tasks arrive and processes them immediately.
+4. **Gemini AI Processing**: The Golang worker calls the Gemini API, processes the response, and pushes the structured JSON output back to Redis.
+5. **Status Updates**: The worker updates job status in Redis at each stage (processing, completed, failed).
+6. **Polling Mechanism**: The frontend polls the backend API until the job is complete.
+7. **Slide Preview**: The JSON response is used to render a preview of the slides with both bullet points and descriptive paragraphs.
+8. **Export Options**: Users can export slides as:
    - **PDF** (via jsPDF)
    - **PPT** (via pptgenx)
 
@@ -39,7 +40,7 @@ Encorp AI is an AI-powered slide generator that takes user input prompts and gen
 
 ## Deployment
 - **Frontend**: Vercel
-- **Node.js Backend**: Vercel
+- **Node.js Backend**: AWS EC2
 - **Golang Worker**: AWS EC2 
 
 ## Setup & Installation
@@ -77,6 +78,12 @@ Encorp AI is an AI-powered slide generator that takes user input prompts and gen
    go build -o worker ./src/main.go
    ./worker
    ```
+
+## System Architecture Benefits
+- **Real-time Processing**: Tasks are processed immediately without polling delays
+- **Resource Efficiency**: Worker remains idle until tasks arrive, reducing CPU and Redis load
+- **Reliability**: Multiple safeguards ensure tasks are never lost
+- **Scalability**: Multiple workers can subscribe to the same notification channel
 
 ## Contributing
 Feel free to open issues and submit pull requests for new features or improvements!
