@@ -47,6 +47,15 @@
   }
 }
 
+.glow-transition {
+  transition: all 0.5s ease;
+}
+
+.hero-image-container:hover .glow-effect {
+  opacity: 0.8;
+  filter: blur(20px);
+}
+
 .glass-card {
   @apply bg-opacity-5 backdrop-blur-lg bg-white rounded-2xl border border-white/10;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);

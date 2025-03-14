@@ -1,16 +1,26 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Presentation, Sparkles, Clock, Check, Users, Shield, Zap, Star } from 'lucide-react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  Presentation,
+  Sparkles,
+  Clock,
+  Check,
+  Users,
+  Shield,
+  Zap,
+  Star,
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
 
 export default function Home() {
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
       <section className="container px-4 py-24 mx-auto text-center">
-        <motion.h1 
+        <motion.h1
           className="text-4xl md:text-6xl font-bold mb-6 gradient-text"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -18,14 +28,52 @@ export default function Home() {
         >
           Create Stunning Presentations with AI
         </motion.h1>
-        <motion.p 
+        <motion.p
           className="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Transform your ideas into professional presentations in minutes using the power of artificial intelligence.
+          Transform your ideas into professional presentations in minutes using
+          the power of artificial intelligence.
         </motion.p>
+
+        <motion.div
+          className="relative mx-auto mb-10 max-w-5xl group"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+        >
+          <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-violet-600 to-primary opacity-75 blur-xl"></div>
+
+          <motion.div
+            className="absolute -inset-2 rounded-xl bg-gradient-to-r from-violet-500 via-primary to-blue-500 blur-xl"
+            initial={{ opacity: 0.3 }}
+            animate={{
+              opacity: [0.3, 0.6, 0.3],
+              scale: [1, 1.02, 1],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+          ></motion.div>
+
+          <div className="absolute -inset-3 rounded-xl bg-gradient-to-r from-purple-500 via-primary to-blue-500 opacity-0 group-hover:opacity-80 blur-xl transition-opacity duration-700"></div>
+
+          <div className="relative overflow-hidden rounded-xl border border-white/10 transition-all duration-700 group-hover:border-primary/30">
+            <Image
+              src="https://pbs.twimg.com/media/Gl_8GdHbsAALdLv?format=jpg&name=4096x4096"
+              height={800}
+              width={2000}
+              className="w-full object-cover aspect-[16/9]"
+              alt="Hero Image"
+              priority
+            />
+          </div>
+        </motion.div>
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -37,33 +85,41 @@ export default function Home() {
             </Button>
           </Link>
           <Link href="/create">
-            <Button variant="secondary" className='border border-violet-400' size="lg">
-              Create <Sparkles className='ml-2'/>
+            <Button
+              variant="secondary"
+              className="border border-violet-400"
+              size="lg"
+            >
+              Create <Sparkles className="ml-2" />
             </Button>
           </Link>
         </motion.div>
       </section>
 
-      {/* Features Section */}
       <section className="container px-4 py-16 mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12 gradient-text">Why Choose Encorp?</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 gradient-text">
+          Why Choose Encorp?
+        </h2>
         <div className="grid md:grid-cols-3 gap-8">
           {[
             {
               icon: <Sparkles className="w-8 h-8 text-primary" />,
               title: "AI-Powered Generation",
-              description: "Create professional presentations with just a prompt using advanced AI technology."
+              description:
+                "Create professional presentations with just a prompt using advanced AI technology.",
             },
             {
               icon: <Clock className="w-8 h-8 text-primary" />,
               title: "Save Time",
-              description: "Generate complete presentations in minutes instead of hours."
+              description:
+                "Generate complete presentations in minutes instead of hours.",
             },
             {
               icon: <Presentation className="w-8 h-8 text-primary" />,
               title: "Beautiful Templates",
-              description: "Access a wide range of professionally designed templates."
-            }
+              description:
+                "Access a wide range of professionally designed templates.",
+            },
           ].map((feature, index) => (
             <motion.div
               key={index}
@@ -80,35 +136,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works Section */}
       <section className="container px-4 py-16 mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12 gradient-text">How It Works</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 gradient-text">
+          How It Works
+        </h2>
         <div className="grid md:grid-cols-4 gap-8">
           {[
             {
               step: "1",
               title: "Sign Up",
               description: "Create your account in seconds",
-              icon: <Users className="w-6 h-6" />
+              icon: <Users className="w-6 h-6" />,
             },
             {
               step: "2",
               title: "Enter Topic",
               description: "Describe your presentation topic",
-              icon: <Zap className="w-6 h-6" />
+              icon: <Zap className="w-6 h-6" />,
             },
             {
               step: "3",
               title: "AI Generation",
               description: "Our AI creates your slides",
-              icon: <Sparkles className="w-6 h-6" />
+              icon: <Sparkles className="w-6 h-6" />,
             },
             {
               step: "4",
               title: "Download",
               description: "Get your presentation instantly",
-              icon: <ArrowRight className="w-6 h-6" />
-            }
+              icon: <ArrowRight className="w-6 h-6" />,
+            },
           ].map((step, index) => (
             <motion.div
               key={index}
@@ -127,31 +184,34 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Benefits Section */}
       <section className="container px-4 py-16 mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12 gradient-text">Benefits</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 gradient-text">
+          Benefits
+        </h2>
         <div className="grid md:grid-cols-2 gap-8">
           {[
             {
               title: "Time Efficiency",
-              description: "Create presentations 10x faster than traditional methods",
-              icon: <Clock className="w-6 h-6 text-primary" />
+              description:
+                "Create presentations 10x faster than traditional methods",
+              icon: <Clock className="w-6 h-6 text-primary" />,
             },
             {
               title: "Professional Design",
               description: "Get access to premium templates and layouts",
-              icon: <Presentation className="w-6 h-6 text-primary" />
+              icon: <Presentation className="w-6 h-6 text-primary" />,
             },
             {
               title: "Easy to Use",
-              description: "No design skills required - just describe your needs",
-              icon: <Check className="w-6 h-6 text-primary" />
+              description:
+                "No design skills required - just describe your needs",
+              icon: <Check className="w-6 h-6 text-primary" />,
             },
             {
               title: "Secure Platform",
               description: "Your content is always private and protected",
-              icon: <Shield className="w-6 h-6 text-primary" />
-            }
+              icon: <Shield className="w-6 h-6 text-primary" />,
+            },
           ].map((benefit, index) => (
             <motion.div
               key={index}
@@ -170,7 +230,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="container px-4 py-16 mx-auto text-center">
         <motion.div
           className="glass-card p-12 max-w-3xl mx-auto"
@@ -178,8 +237,13 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl font-bold mb-4 gradient-text">Ready to Transform Your Presentations?</h2>
-          <p className="text-lg text-gray-400 mb-8">Join thousands of users who are creating stunning presentations with AI</p>
+          <h2 className="text-3xl font-bold mb-4 gradient-text">
+            Ready to Transform Your Presentations?
+          </h2>
+          <p className="text-lg text-gray-400 mb-8">
+            Join thousands of users who are creating stunning presentations with
+            AI
+          </p>
           <Link href="/auth/signup">
             <Button size="lg">
               Get Started Now <ArrowRight className="ml-2" />
