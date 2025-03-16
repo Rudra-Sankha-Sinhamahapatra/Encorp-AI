@@ -4,9 +4,14 @@ Encorp AI is an AI-powered slide generator that takes user input prompts and gen
 
 ## Demo Video
 
+
+
+https://github.com/user-attachments/assets/4a762f55-54c7-467b-81af-e71df4da0ced
+
+
 <details>
   <summary>Click to see demo video</summary>
-  <video src="./docs/videos/demo.mov" controls width="100%"></video>
+  <video src="https://github.com/user-attachments/assets/4a762f55-54c7-467b-81af-e71df4da0ced" controls width="100%"></video>
 </details>
 
 
