@@ -9,6 +9,33 @@ Encorp AI is an AI-powered slide generator that takes user input prompts and gen
 - **Node.js Backend:** Handles authentication and API requests.
 - **Export Options:** Supports PDF (via jsPDF) and PPT (via pptgenx).
 
+## Prerequisites
+
+Before setting up this project, ensure you have the following installed:
+
+- **Node.js** (v18.0.0 or later)
+- **Go** (v1.20 or later)
+- **Redis** (v6.0 or later) - Get Redis URL from [Upstash](https://upstash.com/) or [Aiven](https://aiven.io/)
+- **PostgreSQL** (v14 or later) for the database - Get PostgreSQL Connection URL from [Supabase](https://supabase.com/) or Just start a local postgres container
+- **Git** for cloning the repository
+- **Gemini API key** - Sign up at [Google AI Studio](https://makersuite.google.com) to obtain your API key
+
+- **Environment variables**:
+  - For backend: Create a `.env` file in the backend directory with:
+    ```
+    DATABASE_URL=postgresql://username:password@localhost:5432/db
+    REDIS_URL=redis://localhost:6379
+    NODE_ENV=dev
+    JWT_SECRET=your_jwt_secret
+    PORT=8000
+    ```
+  - For Go worker: Create a `.env` file in the Go-worker directory with:
+    ```
+    GEMINI_API_KEY=your_gemini_api_key
+    REDIS_ADDR=localhost:6379
+    REDIS_PASSWORD=
+    ```
+
 ## Architecture
 
 ![Architecture Diagram](./docs/images/arc.png)
