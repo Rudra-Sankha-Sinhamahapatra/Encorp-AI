@@ -2,6 +2,14 @@
 
 Encorp AI is an AI-powered slide generator that takes user input prompts and generates structured presentations using Gemini AI. It supports both PDF and PPT export functionalities.
 
+## Demo Video
+
+<details>
+  <summary>Click to see demo video</summary>
+  <video src="./docs/videos/demo.mov" controls width="100%"></video>
+</details>
+
+
 ## Features
 - **AI-Powered Slide Generation:** Uses Gemini AI to process prompts and create structured slides.
 - **Redis-Based Job Queue:** Ensures efficient task management and processing.
