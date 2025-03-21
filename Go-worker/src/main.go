@@ -155,6 +155,18 @@ func processTask(ctx context.Context, redisClient *redis.Client, taskData string
 		return
 	}
 
+	imageService, err := services.NewImageService()
+	if err != nil {
+		log.Printf("Failed to initialize image service: %v", err)
+	} else {
+		enhancedJSON, err := imageService.ProcessPresentationImages(taskCtx, result)
+		if err == nil {
+			result = enhancedJSON
+		} else {
+			log.Printf("Failed to add images: %v", err)
+		}
+	}
+
 	err = redisClient.Set(taskCtx, "presentation:"+payload.JobID, result, 24*time.Hour).Err()
 	if err != nil {
 		log.Printf("Error storing presentation: %v", err)

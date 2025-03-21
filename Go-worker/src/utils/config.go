@@ -13,6 +13,7 @@ type Config struct {
 	REDIS_URL      string
 	REDIS_ADDR     string
 	REDIS_PASSWORD string
+	OPENAI_API_KEY string
 }
 
 var AppConfig Config
@@ -48,11 +49,18 @@ func LoadEnv() (Config, error) {
 		return Config{}, errors.New("REDIS_PASSWORD is required")
 	}
 
+	OPENAI_API_KEY := os.Getenv("OPENAI_API_KEY")
+
+	if OPENAI_API_KEY == "" {
+		return Config{}, errors.New("OPENAI_API_KEY is required")
+	}
+
 	AppConfig = Config{
 		GEMINI_API_KEY: GEMINI_API_KEY,
 		REDIS_URL:      REDIS_URL,
 		REDIS_ADDR:     REDIS_ADDR,
 		REDIS_PASSWORD: REDIS_PASSWORD,
+		OPENAI_API_KEY: OPENAI_API_KEY,
 	}
 
 	return AppConfig, nil
