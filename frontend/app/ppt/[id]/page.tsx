@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
@@ -216,6 +217,22 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
                     </motion.div>
                   )}
                 </div>
+
+                { slide.imageURL && (
+                  <motion.div
+                  className='md:w-2/5 flex justify-normal items-center'
+                  initial={{opacity:0 , scale:0.9}}
+                  animate={{ opacity:1, scale:1}}
+                  transition={{duration:0.5 , delay:0.4}}
+                  >
+                    <div className='relative overflow-hidden rounded-lg shadow-xl border border-white/10 aspect-sqaure w-full max-w-md'>
+                    <img src={slide.imageURL} alt={`Illustration for ${slide.imagePrompt}`} className='w-full h-full object-cover' onError={(e)=> {
+                      e.currentTarget.src = '/placeholder.png';
+                      console.error(`Failed to load image for ${slide.imagePrompt}`);
+                    }}/>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </div>
           )}
