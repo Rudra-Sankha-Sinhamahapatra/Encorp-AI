@@ -12,6 +12,55 @@ import { toast } from 'sonner';
 import { PresentationProps as PresentationData } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
 
+
+function SlideImage({ url, alt }: { url: string | undefined; alt: string }) {
+  const [error, setError] = useState(false);
+  const [isOpenAI, setIsOpenAI] = useState(false);
+  
+  useEffect(() => {
+    if (url?.startsWith('https://oaidalleapiprodscus.blob.core.windows.net')) {
+      setIsOpenAI(true);
+    } else {
+      setIsOpenAI(false);
+    }
+    setError(false);
+  }, [url]);
+  
+  const handleError = () => {
+    setError(true);
+  };
+  
+  const imageUrl = url?.startsWith('https://oaidalleapiprodscus.blob.core.windows.net')
+    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/image/proxy?url=${encodeURIComponent(url)}`
+    : url;
+  
+  return (
+    <div className='relative overflow-hidden rounded-lg shadow-xl border border-white/10 aspect-sqaure w-full max-w-md'>
+      {!error ? (
+        <img 
+          src={imageUrl}
+          alt={alt}
+          className='w-full h-full object-cover'
+          onError={handleError}
+        />
+      ) : (
+        <div className='w-full h-full bg-gray-900 flex items-center justify-center'>
+          <img 
+            src="/placeholder.png"
+            alt="Placeholder"
+            className='w-full h-full object-cover'
+          />
+          {isOpenAI && (
+            <div className='absolute inset-0 flex items-center justify-center bg-black/50 text-white p-6 text-center'>
+              AI-generated image (expired link)
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PresentationViewerPage({ params }: { params: { id: string } }) {
   const { id } = params;
   const [presentation, setPresentation] = useState<PresentationData | null>(null);
@@ -19,6 +68,7 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [expiredImages, setExpiredImages] = useState<Set<number>>(new Set());
   const router = useRouter();
 
   const fetchPresentation = useCallback(async () => {
@@ -221,16 +271,14 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
                 { slide.imageURL && (
                   <motion.div
                   className='md:w-2/5 flex justify-normal items-center'
-                  initial={{opacity:0 , scale:0.9}}
-                  animate={{ opacity:1, scale:1}}
-                  transition={{duration:0.5 , delay:0.4}}
+                  initial={{opacity:0, scale:0.9}}
+                  animate={{opacity:1, scale:1}}
+                  transition={{duration:0.5, delay:0.4}}
                   >
-                    <div className='relative overflow-hidden rounded-lg shadow-xl border border-white/10 aspect-sqaure w-full max-w-md'>
-                    <img src={slide.imageURL} alt={`Illustration for ${slide.imagePrompt}`} className='w-full h-full object-cover' onError={(e)=> {
-                      e.currentTarget.src = '/placeholder.png';
-                      console.error(`Failed to load image for ${slide.imagePrompt}`);
-                    }}/>
-                    </div>
+                    <SlideImage 
+                      url={slide.imageURL} 
+                      alt={`Illustration for ${slide.imagePrompt}`} 
+                    />
                   </motion.div>
                 )}
               </div>

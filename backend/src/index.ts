@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import { PORT } from "./config";
 import userRouter from "./routes/user";
 import presentationRouter from "./routes/presentation";
+import imageRouter from "./routes/image";
 
 
 dotenv.config();
@@ -34,6 +35,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/v1/user",userRouter);
 app.use("/api/v1/presentation",presentationRouter);
+app.use("/api/v1/image", imageRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
