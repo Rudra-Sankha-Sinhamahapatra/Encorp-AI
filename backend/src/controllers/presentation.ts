@@ -7,6 +7,10 @@ import { REDIS_URL } from "../config";
 
 const redisClient = createClient({
   url: REDIS_URL || "redis://localhost:6379",
+  socket: {
+    tls: true,
+    rejectUnauthorized: false,
+  }
 });
 
 (async ()=> {
