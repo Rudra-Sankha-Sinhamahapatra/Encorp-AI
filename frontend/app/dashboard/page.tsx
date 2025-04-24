@@ -24,6 +24,14 @@ export default function DashboardPage() {
     const fetchPresentations = async () => {
       try {
         const userId = Cookies.get('userId');
+        console.log('Dashboard - userId from cookie:', userId);
+        
+        if (!userId) {
+          console.log('No userId found in cookies, redirecting to login');
+          router.push('/auth/login');
+          return;
+        }
+        
         const response = await api.get(`/presentation/user/${userId}`);
         setPresentations(response.data.presentations || []);
       } catch (error) {
@@ -34,7 +42,7 @@ export default function DashboardPage() {
     };
 
     fetchPresentations();
-  }, []);
+  }, [router]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

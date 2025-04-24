@@ -52,8 +52,14 @@ export default function LoginPage() {
       setIsLoading(true);
       const response = await api.post('/user/signin', data);
       const { token,userId } = response.data;
-      Cookies.set('token', token);
-      Cookies.set('userId', userId);
+      Cookies.set('token', token, { 
+        path: '/', 
+        sameSite: 'lax'
+      });
+      Cookies.set('userId', userId, { 
+        path: '/', 
+        sameSite: 'lax'
+      });
       
       toast.success('Logged in successfully!');
       router.push('/dashboard');

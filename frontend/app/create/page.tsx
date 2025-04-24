@@ -56,9 +56,10 @@ export default function CreatePage() {
       setIsGenerating(true);
       setProgress(0);
       
-       const userId = Cookies.get('userId');
+      const userId = Cookies.get('userId');
+      console.log('Retrieved userId from cookie:', userId);
 
-       const payload = {
+      const payload = {
         prompt: data.prompt,
         presentationStyle: data.presentationStyle,
         numberOfSlides: parseInt(data.numberOfSlides),

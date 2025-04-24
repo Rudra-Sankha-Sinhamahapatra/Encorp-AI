@@ -32,8 +32,8 @@ export function Header() {
   }, []);
 
   const handleLogout = () => {
-    Cookies.remove('token');
-    Cookies.remove('userId');
+    Cookies.remove('token', { path: '/' });
+    Cookies.remove('userId', { path: '/' });
     toast.success('Logged out successfully');
     setIsLoggedIn(false);
     router.push('/');
