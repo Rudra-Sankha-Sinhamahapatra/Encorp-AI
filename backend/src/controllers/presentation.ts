@@ -1,23 +1,8 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { createClient } from "redis";
 import prisma from "../db/db";
+import redis from "../db/redis";
 import { CreatePresentation } from "../zod/presentation";
-import { REDIS_URL } from "../config";
-
-const redisClient = createClient({
-  url: REDIS_URL || "redis://localhost:6379",
-  socket: {
-    tls: true,
-    rejectUnauthorized: false,
-  }
-});
-
-(async ()=> {
-    await redisClient.connect();
-})();
-
-redisClient.on("error",(err)=> console.log("Redis Client Error:",err));
 
 export const createPresentation = async (req:Request,res:Response) => {
     try {
@@ -42,14 +27,14 @@ export const createPresentation = async (req:Request,res:Response) => {
       });
 
        try {
-        await redisClient.lPush("presentation_Task_queue", JSON.stringify({
+        await redis.lpush("presentation_Task_queue", JSON.stringify({
           job_id: jobId,
           prompt: prompt,
           numberOfSlides: numberOfSlides,
           presentationStyle: presentationStyle
         }));
         
-        await redisClient.publish("presentation_job_notifications", `new_job:${jobId}`);
+        await redis.publish("presentation_job_notifications", `new_job:${jobId}`);
         
         console.log(`Successfully queued job ${jobId} for processing and sent notification`);
       } catch (redisError) {
@@ -97,7 +82,7 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
         return
       }
 
-      const status = await redisClient.get(`job_status:${jobId}`);
+      const status = await redis.get(`job_status:${jobId}`);
       
     const statusValue = status ? status.toUpperCase() : "PENDING";
 
@@ -187,7 +172,7 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
       }
   
       
-      const presentation = await redisClient.get(`presentation:${jobId}`);
+      const presentation = await redis.get(`presentation:${jobId}`);
       if (!presentation) {
          res.status(404).json({
           jobId,
@@ -198,7 +183,7 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
       }
 
       const parsedPresentation = JSON.parse(presentation);
-      const status = await redisClient.get(`job_status:${jobId}`);
+      const status = await redis.get(`job_status:${jobId}`);
       
       const statusValue = status ? status.toUpperCase() : "PENDING";
   
