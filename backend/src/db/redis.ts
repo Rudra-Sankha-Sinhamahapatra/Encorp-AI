@@ -40,13 +40,13 @@ if (REDIS_URL) {
 } else {
     console.log("Connecting with individual parameters...");
     redis = new Redis({
-        host: REDIS_HOST || "immortal-minnow-60676.upstash.io",
-        port: Number(REDIS_PORT) || 6379,
-        username: REDIS_USERNAME || "default",
+        host: REDIS_HOST,
+        port: Number(REDIS_PORT),
+        username: REDIS_USERNAME,
         password: REDIS_PASSWORD,
         tls: {
             rejectUnauthorized: false,
-            servername: REDIS_HOST || "immortal-minnow-60676.upstash.io"
+            servername: REDIS_HOST
         },
         connectTimeout: 10000,
         lazyConnect: true,
