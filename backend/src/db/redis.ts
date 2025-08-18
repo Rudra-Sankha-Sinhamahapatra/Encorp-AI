@@ -1,52 +1,68 @@
 import Redis from "ioredis";
-import dotenv from "dotenv";
-dotenv.config();
-
+import { REDIS_HOST,REDIS_PASSWORD,REDIS_PORT, REDIS_URL, REDIS_USERNAME } from "../config";
 
 console.log("Redis Connection Details:");
 console.log("-------------------------");
-console.log("Host:", process.env.REDIS_HOST);
-console.log("Port:", process.env.REDIS_PORT);
-console.log("Username:", process.env.REDIS_USERNAME ? "Set" : "Not set");
-console.log("Password:", process.env.REDIS_PASSWORD ? "Set" : "Not set");
-console.log("Redis URL:", process.env.REDIS_URL ? "Set" : "Not set");
+console.log("Host:", REDIS_HOST);
+console.log("Port:", REDIS_PORT);
+console.log("Username:", REDIS_USERNAME ? "Set" : "Not set");
+console.log("Password:", REDIS_PASSWORD ? "Set" : "Not set");
+console.log("Redis URL:", REDIS_URL ? "Set" : "Not set");
 console.log("-------------------------");
-
 
 let redis: Redis;
 
-if (process.env.REDIS_URL) {
+if (REDIS_URL) {
     console.log("Attempting to connect using Redis URL...");
-    redis = new Redis(process.env.REDIS_URL, {
+    redis = new Redis(REDIS_URL, {
+  
         tls: {
             rejectUnauthorized: false,
+            servername: REDIS_HOST
         },
+
+        connectTimeout: 10000,
+        lazyConnect: true,
+        keepAlive: 30000,
+
         retryStrategy(times: number) {
-            const delay = Math.min(times * 1000, 5000);
+            if (times > 10) {
+                console.log("❌ Redis: Max retries reached, stopping...");
+                return null;
+            }
+            const delay = Math.min(times * 2000, 10000);
             console.log(`Redis connection attempt ${times} failed. Retrying in ${delay}ms...`);
             return delay;
         },
+        maxRetriesPerRequest: 3,
+        family: 4
     });
 } else {
     console.log("Connecting with individual parameters...");
-    const redisOptions = {
-        host: process.env.REDIS_HOST || "127.0.0.1",
-        port: Number(process.env.REDIS_PORT) || 6379,
-        username: process.env.REDIS_USERNAME,
-        password: process.env.REDIS_PASSWORD,
+    redis = new Redis({
+        host: REDIS_HOST || "immortal-minnow-60676.upstash.io",
+        port: Number(REDIS_PORT) || 6379,
+        username: REDIS_USERNAME || "default",
+        password: REDIS_PASSWORD,
         tls: {
-            //  TLS/SSL for secure connections
-            rejectUnauthorized: false, 
+            rejectUnauthorized: false,
+            servername: REDIS_HOST || "immortal-minnow-60676.upstash.io"
         },
+        connectTimeout: 10000,
+        lazyConnect: true,
+        keepAlive: 30000,
         retryStrategy(times: number) {
-            const delay = Math.min(times * 1000, 5000);
+            if (times > 10) {
+                console.log("❌ Redis: Max retries reached, stopping...");
+                return null;
+            }
+            const delay = Math.min(times * 2000, 10000);
             console.log(`Redis connection attempt ${times} failed. Retrying in ${delay}ms...`);
             return delay;
         },
-        maxRetriesPerRequest: 3
-    };
-
-    redis = new Redis(redisOptions);
+        maxRetriesPerRequest: 3,
+        family: 4
+    });
 }
 
 
@@ -59,26 +75,48 @@ redis.on("ready", () => {
 });
 
 redis.on("error", (err: Error) => {
-    console.error("❌ Redis Error:", err);
-    console.error("Error stack:", err.stack);
+    console.error("❌ Redis Error:", err.message);
+
+    if (!err.message.includes('ECONNRESET')) {
+        console.error("Error details:", err);
+    }
 });
 
 redis.on("close", () => {
     console.log("⚠️ Redis connection closed");
 });
 
-redis.on("reconnecting", () => {
-    console.log("⏳ Redis reconnecting...");
+redis.on("reconnecting", (ms: number) => {
+    console.log(`⏳ Redis reconnecting in ${ms}ms...`);
+});
+
+redis.on("end", () => {
+    console.log("🔴 Redis connection ended");
 });
 
 
 (async () => {
     try {
-        await redis.ping();
-        console.log("🟢 Redis ping successful!");
-    } catch (error) {
-        console.error("🔴 Redis ping failed:", error);
+        console.log("🔄 Testing Redis connection...");
+        await redis.connect();
+        const pong = await redis.ping();
+        console.log("🟢 Redis ping successful:", pong);
+        
+        await redis.set("test:connection", "ok", "EX", 10);
+        const testValue = await redis.get("test:connection");
+        console.log("🟢 Redis test operation successful:", testValue);
+        
+    } catch (error:any) {
+        console.error("🔴 Redis connection test failed:");
+        console.error("Error message:", error.message);
+        console.error("Error code:", error.code);
+        
+        console.log("\n💡 Troubleshooting suggestions:");
+        console.log("1. Check if your Upstash Redis instance is active");
+        console.log("2. Verify your Redis credentials in .env file");
+        console.log("3. Check if your IP is whitelisted (if applicable)");
+        console.log("4. Try connecting from a different network");
     }
 })();
 
-export default redis; 
+export default redis;
