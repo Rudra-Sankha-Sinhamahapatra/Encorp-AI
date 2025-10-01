@@ -3,13 +3,16 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Loader2, ArrowLeft, ArrowRight, Home } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight, Home, Pencil, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { PresentationProps as PresentationData } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import Cookies from 'js-cookie';
 
 export default function PresentationViewerPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -17,6 +20,8 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
   const [status, setStatus] = useState<string>('PENDING');
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isEditing,setIsEditing] = useState(false);
+  const [editedPresentation,setEditedPresentation] = useState<PresentationData | null>(null);
   const [progress, setProgress] = useState(0);
   const router = useRouter();
 
@@ -33,6 +38,46 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
       setLoading(false);
     }
   }, [id]);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditedPresentation(presentation);
+  }
+
+   const handleSave = async () => {
+    try {
+      await api.put(`/presentation/${id}`, {
+        presentation: editedPresentation,
+        userId: Cookies.get("userId")
+      });
+      setPresentation(editedPresentation);
+      setIsEditing(false);
+      toast.success('Changes saved successfully');
+    } catch (error) {
+      console.error('Error saving presentation:', error);
+      toast.error('Failed to save changes');
+    }
+   }
+
+   const handleCancel = () => {
+    setIsEditing(false);
+    setEditedPresentation(presentation);
+  };
+
+  const updateSlideContent = (index: number, field: string, value: string | string[]) => {
+    if (!editedPresentation) return;
+    
+    const newSlides = [...editedPresentation.slides];
+    newSlides[index] = {
+      ...newSlides[index],
+      [field]: value
+    };
+
+    setEditedPresentation({
+      ...editedPresentation,
+      slides: newSlides
+    });
+  };
 
   const checkPresentationStatus = useCallback(async () => {
     try {
@@ -73,6 +118,14 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
+      if (
+        isEditing && 
+        (event.target as HTMLElement).tagName.toLowerCase() === 'input' ||
+        (event.target as HTMLElement).tagName.toLowerCase() === 'textarea'
+      ) {
+        return;
+      }
+
       if (event.key === 'ArrowRight' && presentation?.slides && currentSlide < presentation.slides.length - 1) {
         setCurrentSlide(currentSlide + 1);
       } else if (event.key === 'ArrowLeft' && currentSlide > 0) {
@@ -84,7 +137,12 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [currentSlide, presentation]);
+  }, [currentSlide, presentation, isEditing]);
+
+  const autoResizeTextarea = (element: HTMLTextAreaElement) => {
+    element.style.height = 'auto';
+    element.style.height = element.scrollHeight + 'px';
+  };
 
   if (loading || status === 'PENDING' || status === 'PROCESSING') {
     return (
@@ -145,74 +203,210 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
 
   return (
     <div className="container mx-auto p-4 py-8 max-w-6xl">
-      <div className="flex justify-between items-center mb-6">
+      <div className="md:flex justify-between items-center mb-6">
         <Button 
           variant="outline" 
           size="sm"
           onClick={() => router.push('/dashboard')}
+          className='max-md:mb-2'
         >
           <Home className="h-4 w-4 mr-2" /> Dashboard
         </Button>
         
-        <div className="text-center">
-          <h1 className="text-xl font-bold gradient-text">{presentation.title}</h1>
-          <p className="text-sm text-gray-400">
-            Slide {currentSlide + 1} of {presentation.slides.length}
+        <div className="text-center flex-1 max-w-2xl"> 
+          <h1 className="text-xl font-bold">
+            {isEditing ? (
+              <Textarea
+                value={editedPresentation?.title || ''}
+                onChange={(e) => setEditedPresentation(prev => prev ? {...prev, title: e.target.value} : prev)}
+                className="w-full text-center bg-transparent border-none focus:border-none resize-none min-h-[60px] title-gradient-text"
+                onKeyDown={(e) => e.stopPropagation()}
+                style={{
+                  background: 'transparent',
+                  boxShadow: 'none',
+                  fontSize: 'inherit',
+                  fontWeight: 'inherit',
+                }}
+              />
+            ) : (
+              <span className="gradient-text">{presentation?.title}</span>
+            )}
+          </h1>
+          <p className="text-sm text-gray-400 max-sm:mb-4">
+            Slide {currentSlide + 1} of {presentation?.slides.length}
           </p>
         </div>
+
         <div className='flex gap-2'>
-        <ExportButton presentation={presentation} />
+          {isEditing ? (
+            <>
+              <Button variant="outline" size="sm" onClick={handleCancel}>
+                <X className="h-4 w-4 mr-2" /> Cancel
+              </Button>
+              <Button size="sm" onClick={handleSave}>
+                <Save className="h-4 w-4 mr-2" /> Save
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" onClick={handleEdit}>
+                <Pencil className="h-4 w-4 mr-2" /> Edit
+              </Button>
+              <ExportButton presentation={presentation} />
+            </>
+          )}
         </div>
       </div>
 
-      {presentation.slides.map((slide, index) => (
+      {(isEditing ? editedPresentation : presentation)?.slides.map((slide, index) => (
         <motion.div
           key={index}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className={`glass-card p-8 md:p-12 lg:aspect-[20/12] md:aspect-[20/13] xl:aspect-[20/10] 2xl:aspect-[20/8] flex flex-col justify-center ${index === currentSlide ? 'block' : 'hidden'}`}
+          className={`glass-card p-8 md:p-12 min-h-[600px] flex flex-col justify-center ${
+            index === currentSlide ? 'block' : 'hidden'
+          }`}
           id={`slide-${index}`} 
         >
           {slide.type === 'title' ? (
-            <div className="text-center">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 gradient-text">
-                {slide.title}
-              </h2>
-              {slide.subtitle && (
-                <p className="text-xl md:text-2xl text-gray-300">{slide.subtitle}</p>
+            <div className="text-center h-full flex flex-col justify-center"> 
+              {isEditing ? (
+                <>
+                  <Textarea 
+                    value={slide.title}
+                    onChange={(e) => {
+                      updateSlideContent(index, 'title', e.target.value);
+                      autoResizeTextarea(e.target);
+                    }}
+                    className="slide-textarea text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-center gradient-text-input"
+                    onKeyDown={(e) => e.stopPropagation()}
+                  />
+                  {slide.subtitle !== undefined && (
+                    <Textarea
+                      value={slide.subtitle || ''}
+                      onChange={(e) => updateSlideContent(index, 'subtitle', e.target.value)}
+                      className="slide-textarea text-xl md:text-2xl text-center bg-transparent border-none resize-none min-h-[100px]"
+                      placeholder="Add subtitle"
+                      style={{
+                        background: 'transparent',
+                        boxShadow: 'none',
+                      }}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    />
+                  )}
+                </>
+              ) : (
+                <>
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 gradient-text">
+                    {slide.title}
+                  </h2>
+                  {slide.subtitle && (
+                    <p className="text-xl md:text-2xl text-gray-300">{slide.subtitle}</p>
+                  )}
+                </>
               )}
             </div>
           ) : (
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold mb-6">{slide.title}</h2>
+            <div className="h-full flex flex-col">
+              {isEditing ? (
+                <Input
+                  value={slide.title}
+                  onChange={(e) => updateSlideContent(index, 'title', e.target.value)}
+                  className="text-2xl md:text-3xl font-bold mb-6 bg-transparent"
+                  onKeyDown={(e) => {
+                    e.stopPropagation();
+                  }}
+                />
+              ) : (
+                <h2 className="text-2xl md:text-3xl font-bold mb-6">{slide.title}</h2>
+              )}
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="w-full">
                   {slide.bullets && (
-                    <ul className="space-y-3 text-lg">
-                      {slide.bullets.map((bullet, bulletIndex) => (
-                        <motion.li 
-                          key={bulletIndex} 
-                          className="flex items-start"
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: bulletIndex * 0.1 }}
-                        >
-                          <span className="text-primary mr-2 text-xl">•</span>
-                          <span>{bullet}</span>
-                        </motion.li>
-                      ))}
-                    </ul>
+                    <div className="space-y-3 text-lg">
+                      {isEditing ? (
+                        slide.bullets.map((bullet, bulletIndex) => (
+                          <div key={bulletIndex} className="flex items-start gap-2 mb-2">
+                            <span className="text-primary mt-2">•</span>
+                            <Textarea
+                              value={bullet}
+                              onChange={(e) => {
+                                const newBullets = [...slide.bullets!];
+                                newBullets[bulletIndex] = e.target.value;
+                                updateSlideContent(index, 'bullets', newBullets);
+                              }}
+                              className="bg-transparent min-h-[60px] flex-1"
+                              onKeyDown={(e) => {
+                                e.stopPropagation();
+                              }}
+                            />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="mt-2"
+                              onClick={() => {
+                                const newBullets = slide.bullets!.filter((_, i) => i !== bulletIndex);
+                                updateSlideContent(index, 'bullets', newBullets);
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))
+                      ) : (
+                        <ul className="space-y-3">
+                          {slide.bullets.map((bullet, bulletIndex) => (
+                            <motion.li 
+                              key={bulletIndex}
+                              className="flex items-start"
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.3, delay: bulletIndex * 0.1 }}
+                            >
+                              <span className="text-primary mr-2 text-xl">•</span>
+                              <span className="whitespace-pre-wrap">{bullet}</span>
+                            </motion.li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   )}
 
-                  {slide.description && (
-                    <motion.div
-                    initial={{opacity:0,y:10}}
-                    animate={{opacity:1,y:0}}
-                    transition={{duration:0.4,delay:0.3}}
-                    className='text-gray-300 mt-4 border-t border-white/10 pt-4'
+                  {isEditing && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => {
+                        const newBullets = [...(slide.bullets || []), ''];
+                        updateSlideContent(index, 'bullets', newBullets);
+                      }}
                     >
-                     <p className='text-base leading-relaxed'>{slide.description}</p>
+                      Add Bullet Point
+                    </Button>
+                  )}
+
+                  {(isEditing || slide.description) && (
+                    <motion.div
+                      initial={{opacity:0,y:10}}
+                      animate={{opacity:1,y:0}}
+                      transition={{duration:0.4,delay:0.3}}
+                      className='text-gray-300 mt-4 border-t border-white/10 pt-4'
+                    >
+                      {isEditing ? (
+                        <Textarea
+                          value={slide.description || ''}
+                          onChange={(e) => updateSlideContent(index, 'description', e.target.value)}
+                          className="bg-transparent min-h-[100px]"
+                          placeholder="Add description"
+                          onKeyDown={(e) => {
+                            e.stopPropagation();
+                          }}
+                        />
+                      ) : (
+                        <p className='text-base leading-relaxed whitespace-pre-wrap'>{slide.description}</p>
+                      )}
                     </motion.div>
                   )}
                 </div>

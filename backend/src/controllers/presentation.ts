@@ -258,3 +258,43 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
       return
     }
   }
+
+  export const updatePresentation = async(req: Request,res: Response) => {
+    try {
+      const { id } = req.params;
+      const { presentation } = req.body;
+      const userId = req.body.userId;
+
+      const presentationExists = await prisma.presentationJob.findUnique({
+        where: {
+          id
+        }
+      });
+
+      if(!presentationExists) {
+        return res.status(404).json({
+          message: "Presentation does not exists"
+        })
+      }
+
+      if(presentationExists.userId !== parseInt(userId!)) {
+        return res.status(403).json({
+          message: "Unauthorized to update this presentation"
+        })
+      }
+
+      const updatedPresentation = await prisma.presentationJob.update({
+        where: { id },
+        data: {
+          presentationData: presentation
+        }
+      });
+
+     return res.status(200).json({
+        presentation: updatedPresentation
+      });
+    } catch (error:any) {
+      console.error('Error updating presentation:', error.message);
+     return res.status(500).json({ error: 'Failed to update presentation' });
+    }
+  }
