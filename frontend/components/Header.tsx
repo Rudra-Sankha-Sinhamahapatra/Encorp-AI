@@ -29,7 +29,7 @@ export function Header() {
   useEffect(() => {
     const token = Cookies.get('token');
     setIsLoggedIn(!!token);
-  }, []);
+  }, [pathname]);
 
   const handleLogout = () => {
     Cookies.remove('token', { path: '/' });

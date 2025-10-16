@@ -3,18 +3,14 @@
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
-  Presentation,
   Sparkles,
-  Clock,
-  Check,
-  Users,
-  Shield,
-  Zap,
-  Star,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { features } from "@/utils/features";
+import { howitWorks } from "@/utils/howitworks";
+import { benefits } from "@/utils/benefits";
 
 export default function Home() {
   return (
@@ -64,7 +60,7 @@ export default function Home() {
 
           <div className="relative overflow-hidden rounded-xl border border-white/10 transition-all duration-700 group-hover:border-primary/30">
             <Image
-              src="https://pbs.twimg.com/media/Gl_8GdHbsAALdLv?format=jpg&name=4096x4096"
+              src="https://pbs.twimg.com/media/G3XuWP0XIAAGAQx?format=jpg&name=medium"
               height={800}
               width={2000}
               className="w-full object-cover aspect-[16/9]"
@@ -73,7 +69,7 @@ export default function Home() {
             />
           </div>
         </motion.div>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -101,26 +97,7 @@ export default function Home() {
           Why Choose Encorp?
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
-          {[
-            {
-              icon: <Sparkles className="w-8 h-8 text-primary" />,
-              title: "AI-Powered Generation",
-              description:
-                "Create professional presentations with just a prompt using advanced AI technology.",
-            },
-            {
-              icon: <Clock className="w-8 h-8 text-primary" />,
-              title: "Save Time",
-              description:
-                "Generate complete presentations in minutes instead of hours.",
-            },
-            {
-              icon: <Presentation className="w-8 h-8 text-primary" />,
-              title: "Beautiful Templates",
-              description:
-                "Access a wide range of professionally designed templates.",
-            },
-          ].map((feature, index) => (
+          { features.map((feature, index) => (
             <motion.div
               key={index}
               className="glass-card p-6"
@@ -136,40 +113,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container px-4 py-16 mx-auto">
+      <section className="relative overflow-hidden px-4 py-16 mx-auto">
+
+           <div className="relative container px-4 mx-auto">
         <h2 className="text-3xl font-bold text-center mb-12 gradient-text">
           How It Works
         </h2>
+        </div>
+
         <div className="grid md:grid-cols-4 gap-8">
-          {[
-            {
-              step: "1",
-              title: "Sign Up",
-              description: "Create your account in seconds",
-              icon: <Users className="w-6 h-6" />,
-            },
-            {
-              step: "2",
-              title: "Enter Topic",
-              description: "Describe your presentation topic",
-              icon: <Zap className="w-6 h-6" />,
-            },
-            {
-              step: "3",
-              title: "AI Generation",
-              description: "Our AI creates your slides",
-              icon: <Sparkles className="w-6 h-6" />,
-            },
-            {
-              step: "4",
-              title: "Download",
-              description: "Get your presentation instantly",
-              icon: <ArrowRight className="w-6 h-6" />,
-            },
-          ].map((step, index) => (
+          { howitWorks.map((step, index) => (
             <motion.div
               key={index}
-              className="text-center"
+              className="text-center p-6 rounded-xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-primary/30 transition-all duration-500"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
@@ -189,30 +145,7 @@ export default function Home() {
           Benefits
         </h2>
         <div className="grid md:grid-cols-2 gap-8">
-          {[
-            {
-              title: "Time Efficiency",
-              description:
-                "Create presentations 10x faster than traditional methods",
-              icon: <Clock className="w-6 h-6 text-primary" />,
-            },
-            {
-              title: "Professional Design",
-              description: "Get access to premium templates and layouts",
-              icon: <Presentation className="w-6 h-6 text-primary" />,
-            },
-            {
-              title: "Easy to Use",
-              description:
-                "No design skills required - just describe your needs",
-              icon: <Check className="w-6 h-6 text-primary" />,
-            },
-            {
-              title: "Secure Platform",
-              description: "Your content is always private and protected",
-              icon: <Shield className="w-6 h-6 text-primary" />,
-            },
-          ].map((benefit, index) => (
+          { benefits.map((benefit, index) => (
             <motion.div
               key={index}
               className="glass-card p-6 flex items-start gap-4"
