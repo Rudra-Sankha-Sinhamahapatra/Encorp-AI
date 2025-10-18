@@ -1,6 +1,6 @@
 import express from 'express'
 import { authenticate } from '../middlewares/user'
-import { createPresentation, getExistingPresentationStatus, getPresentation, getPresentationStatus, getUserPresentations, updatePresentation } from '../controllers/presentation';
+import { createPresentation, deletePresentation, getExistingPresentationStatus, getPresentation, getPresentationStatus, getUserPresentations, updatePresentation } from '../controllers/presentation';
 
 const router = express.Router();
 
@@ -10,5 +10,6 @@ router.get("/status/existing/:jobId", authenticate, getExistingPresentationStatu
 router.get("/:jobId", authenticate, getPresentation);
 router.get("/user/:userId", authenticate, getUserPresentations);
 router.put('/:id',authenticate, updatePresentation);
+router.delete('/:id',authenticate, deletePresentation);
 
 export default router;

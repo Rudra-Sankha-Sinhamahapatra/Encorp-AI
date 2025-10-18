@@ -30,7 +30,10 @@ import {
 import api from '@/lib/axios';
 
 const presentationSchema = z.object({
-  prompt: z.string().min(10, 'Prompt must be at least 10 characters'),
+  prompt: z
+    .string()
+    .min(10, 'Prompt must be at least 10 characters')
+    .max(500, 'Prompt cannot exceed 500 characters'),
   presentationStyle: z.string(),
   numberOfSlides: z.string(),
 });
@@ -102,14 +105,36 @@ export default function CreatePage() {
                   <FormItem>
                     <FormLabel>What&apos;s your presentation about?</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Describe your presentation topic and key points..."
-                        className="h-32"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Textarea
+                          placeholder="Describe your presentation topic and key points..."
+                          className="h-32 pr-16"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            if (e.target.value.length <= 500) {
+                              field.onChange(e);
+                            }
+                          }}
+                        />
+                        <div className={`absolute bottom-2 right-2 text-xs ${
+                          field.value.length > 500
+                            ? 'text-red-400' 
+                            : field.value.length > 400
+                              ? 'text-yellow-400' 
+                              : 'text-gray-400'
+                        }`}>
+                          {field.value.length}/500
+                        </div>
+                      </div>
                     </FormControl>
-                    <FormDescription>
-                      Be specific about your topic, audience, and desired outcome.
+                    <FormDescription className="flex justify-between items-center">
+                      <span>Be specific about your topic, audience, and desired outcome.</span>
+                      {field.value.length > 400 && field.value.length <= 500 && (
+                        <span className="text-yellow-400 text-sm">
+                          Approaching limit ({500 - field.value.length} characters remaining)
+                        </span>
+                      )}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

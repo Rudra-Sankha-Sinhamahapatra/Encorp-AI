@@ -239,6 +239,9 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
       const presentations = await prisma.presentationJob.findMany({
         where:{
           userId:userId
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       })
 
@@ -249,6 +252,7 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
         presentations,
         userId
       });
+      return;
     } catch (error) {
       console.log("Internal Server Error ",error)
       res.status(500).json({
@@ -264,6 +268,20 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
       const { id } = req.params;
       const { presentation } = req.body;
       const userId = req.body.userId;
+
+      if(!presentation) {
+        res.status(400).json({
+          message: "No data provided"
+        })
+        return
+      }
+
+      if (!userId) {
+       res.status(401).json({
+        message: "Unauthorized"
+       })
+       return
+      }
 
       const presentationExists = await prisma.presentationJob.findUnique({
         where: {
@@ -298,3 +316,55 @@ export const getPresentationStatus = async (req: Request, res: Response) => {
      return res.status(500).json({ error: 'Failed to update presentation' });
     }
   }
+
+
+export const deletePresentation = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = Number(req.body.userId);
+
+    if (!id) {
+       res.status(400).json({
+        message: "No presentation id provided"
+       })
+       return
+    }
+
+      if (!userId) {
+       res.status(401).json({
+        message: "Unauthorized"
+       })
+       return
+      }
+
+    const presentation = await prisma.presentationJob.findFirst({
+      where: {
+        id,
+        userId
+      }
+    });
+
+    if (!presentation) {
+      return res.status(404).json({
+        message: "Presentation not found or unauthorized"
+      });
+    }
+
+    await prisma.presentationJob.delete({
+      where: {
+        id
+      }
+    });
+
+    res.status(200).json({
+      message: "Presentation deleted successfully"
+    });
+    return
+  } catch (error) {
+    console.error("Delete presentation error:", error);
+    res.status(500).json({
+      message: "Failed to delete presentation"
+    });
+    return
+  }
+};

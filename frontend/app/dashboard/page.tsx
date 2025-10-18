@@ -6,7 +6,19 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/axios';
-import { PlusCircle, Loader2, FileText, Clock } from 'lucide-react';
+import { PlusCircle, Loader2, FileText, Clock, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from 'sonner';
 
 type Presentation = {
   id: string;
@@ -64,6 +76,22 @@ export default function DashboardPage() {
     }
   };
 
+  const handleDelete = async (e: React.MouseEvent, presentationId: string) => {
+    e.stopPropagation(); 
+    try {
+      const userId = Cookies.get('userId');
+      await api.delete(`/presentation/${presentationId}`, {
+        data: { userId }
+      });
+      
+      setPresentations(presentations.filter(p => p.id !== presentationId));
+      toast.success('Presentation deleted successfully');
+    } catch (error) {
+      console.error('Error deleting presentation:', error);
+      toast.error('Failed to delete presentation');
+    }
+  };
+
   return (
     <div className="container mx-auto p-4 max-w-5xl flex flex-col flex-grow">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
@@ -114,10 +142,47 @@ export default function DashboardPage() {
                         <span>{formatDate(presentation.createdAt)}</span>
                       </div>
                     </div>
-                    <div className="mt-4 md:mt-0">
+                    <div className="mt-4 md:mt-0 flex items-center gap-3">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(presentation.status)}`}>
                         {presentation.status}
                       </span>
+                      
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="glass-card border-none">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-2xl font-bold gradient-text">
+                              Delete Presentation
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="text-gray-400">
+                              Are you sure you want to delete this presentation? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter className="gap-2">
+                            <AlertDialogCancel 
+                              onClick={(e) => e.stopPropagation()}
+                              className="bg-transparent hover:bg-white/5 text-gray-300 hover:text-white"
+                            >
+                              Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={(e) => handleDelete(e, presentation.id)}
+                              className="bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 </motion.div>
