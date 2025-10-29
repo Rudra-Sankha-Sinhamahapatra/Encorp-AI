@@ -25,6 +25,9 @@ type Presentation = {
   prompt: string;
   status: string;
   createdAt: string;
+  presentationData: {
+    title: string
+  }
 };
 
 export default function DashboardPage() {
@@ -133,10 +136,16 @@ export default function DashboardPage() {
                     <div>
                       <h3 className="font-medium text-lg mb-1">
                         <FileText className="inline-block mr-2 h-5 w-5 text-primary" />
-                        {presentation.prompt.length > 50 
-                          ? `${presentation.prompt.substring(0, 50)}...` 
+                        {presentation.presentationData.title.length > 5 
+                          ? `${presentation.presentationData.title.substring(0, 50)}...` 
                           : presentation.prompt}
                       </h3>
+                      <p className='text-primary font-medium text-white'>
+                        Prompt:  { presentation.prompt.length > 1  
+                         ? `${presentation.prompt.substring(0, 50)}...` 
+                         : ""}
+
+                      </p>
                       <div className="flex items-center text-sm text-gray-400">
                         <Clock className="h-4 w-4 mr-1" />
                         <span>{formatDate(presentation.createdAt)}</span>

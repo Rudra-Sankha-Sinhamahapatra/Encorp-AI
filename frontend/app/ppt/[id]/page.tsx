@@ -202,7 +202,7 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
   }
 
   return (
-    <div className="container mx-auto p-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-6xl">
       <div className="md:flex justify-between items-center mb-6">
         <Button 
           variant="outline" 
@@ -264,7 +264,7 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className={`glass-card p-8 md:p-12 min-h-[600px] flex flex-col justify-center ${
+          className={`glass-card p-4 sm:p-6 md:p-12 min-h-[400px] sm:min-h-[500px] md:min-h-[600px] flex flex-col justify-center overflow-hidden ${
             index === currentSlide ? 'block' : 'hidden'
           }`}
           id={`slide-${index}`} 
@@ -298,11 +298,11 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
                 </>
               ) : (
                 <>
-                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 gradient-text">
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 gradient-text overflow-hidden text-ellipsis">
                     {slide.title}
                   </h2>
                   {slide.subtitle && (
-                    <p className="text-xl md:text-2xl text-gray-300">{slide.subtitle}</p>
+                    <p className="text-lg sm:text-xl md:text-2xl text-gray-300 overflow-hidden text-ellipsis">{slide.subtitle}</p>
                   )}
                 </>
               )}
@@ -319,9 +319,9 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
                   }}
                 />
               ) : (
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">{slide.title}</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-6 break-words">{slide.title}</h2>
               )}
-              <div className="flex flex-col md:flex-row gap-8">
+              <div className="flex flex-col md:flex-row gap-3 sm:gap-6 md:gap-8 overflow-auto">
                 <div className="w-full">
                   {slide.bullets && (
                     <div className="space-y-3 text-lg">
@@ -416,22 +416,32 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
         </motion.div>
       ))}
 
-      <div className="flex justify-between mt-6 gap-3">
+      <div className="flex flex-wrap justify-between mt-6 gap-2 px-1">
         <Button
           onClick={prevSlide}
           disabled={currentSlide === 0}
           variant="outline"
-          className="w-32"
+          className="w-[45%] sm:w-32 text-sm sm:text-base py-1 h-auto"
+          size="sm"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" /> Previous
+          <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> <span className="sm:inline">Previous</span>
         </Button>
         
-        <div className="flex-1 flex justify-center">
-          <div className="flex items-center gap-1">
+        <Button
+          onClick={nextSlide}
+          disabled={currentSlide === presentation.slides.length - 1}
+          className="w-[45%] sm:w-32 text-sm sm:text-base py-1 h-auto ml-auto"
+          size="sm"
+        >
+          <span className="sm:inline">Next</span> <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2" />
+        </Button>
+        
+        <div className="w-full mt-4 flex justify-center">
+          <div className="flex items-center gap-1 overflow-x-auto py-2 max-w-full">
             {presentation.slides.map((_, index) => (
               <button
                 key={index}
-                className={`h-2 rounded-full transition-all ${
+                className={`h-2 rounded-full transition-all flex-shrink-0 ${
                   index === currentSlide 
                     ? 'w-4 bg-primary' 
                     : 'w-2 bg-gray-600 hover:bg-gray-500'
@@ -442,14 +452,6 @@ export default function PresentationViewerPage({ params }: { params: { id: strin
             ))}
           </div>
         </div>
-        
-        <Button
-          onClick={nextSlide}
-          disabled={currentSlide === presentation.slides.length - 1}
-          className="w-32"
-        >
-          Next <ArrowRight className="h-4 w-4 ml-2" />
-        </Button>
       </div>
       
       <div className="text-center mt-6 text-xs text-gray-500">
