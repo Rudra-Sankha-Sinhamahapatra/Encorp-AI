@@ -16,8 +16,6 @@
 # production
 /build
 
-bun.lock
-package-lock.json
 
 # misc
 .DS_Store
