@@ -136,9 +136,9 @@ export default function DashboardPage() {
                     <div>
                       <h3 className="font-medium text-lg mb-1">
                         <FileText className="inline-block mr-2 h-5 w-5 text-primary" />
-                        {presentation.presentationData.title.length > 5 
+                        {presentation.presentationData?.title && presentation.presentationData.title.length > 5 
                           ? `${presentation.presentationData.title.substring(0, 50)}...` 
-                          : presentation.prompt}
+                          : presentation.presentationData?.title || "Unknown"}
                       </h3>
                       <p className='text-primary font-medium text-white'>
                         Prompt:  { presentation.prompt.length > 1  
