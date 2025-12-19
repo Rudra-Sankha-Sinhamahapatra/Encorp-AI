@@ -19,7 +19,7 @@ func NewGeminiClient(apiKey string) (*GeminiClient, error) {
 		return nil, err
 	}
 
-	model := client.GenerativeModel("gemini-2.0-flash")
+	model := client.GenerativeModel("gemini-2.5-flash-lite")
 
 	return &GeminiClient{
 		client: client,
