@@ -1,3 +1,4 @@
+import Script from "next/script";
 import './globals.css';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
@@ -17,6 +18,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          id="structured-data"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Encorp AI",
+              url: "https://encorp.rudrasankha.com",
+            }),
+          }}
+        />
+      </head>
        <body className={`${inter.className} relative`}>
              <div className="fixed inset-0 -z-10 pointer-events-none">
           <DarkVeil
